@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
 
-        /* Mockup Handphone */
         .phone-container {
             width: 100%;
             max-width: 420px;
@@ -41,7 +40,6 @@
             position: relative;
         }
 
-        /* Header Chat */
         .chat-header {
             background-color: #202c33;
             padding: 15px 20px;
@@ -74,7 +72,6 @@
             height: 15px;
         }
 
-        /* Area Isi Chat */
         .chat-body {
             flex: 1;
             padding: 20px;
@@ -85,7 +82,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Bubble Chat */
         .bubble {
             max-width: 75%;
             padding: 10px 14px;
@@ -93,6 +89,7 @@
             font-size: 0.95rem;
             line-height: 1.4;
             word-wrap: break-word;
+            opacity: 0;
             animation: fadeIn 0.3s ease-in-out forwards;
         }
 
@@ -119,7 +116,6 @@
             padding: 5px 10px;
         }
 
-        /* Pilihan Jawaban / Menu */
         .choices-container {
             background-color: #111b21;
             padding: 15px;
@@ -178,20 +174,13 @@
         </div>
     </div>
 
-    <div class="chat-body" id="chat-body">
-        <!-- Chat history akan muncul di sini via JavaScript -->
-    </div>
-
-    <div class="choices-container" id="choices-container">
-        <!-- Tombol pilihan muncul di sini -->
-    </div>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="choices-container" id="choices-container"></div>
 </div>
 
 <script>
-    // 🎭 JALUR CERITA MISTERI (Kamu bisa edit teks & cabangnya di sini)
     const storyData = {
         start: {
-            sender: "unknown",
             name: "0812-334X-XXXX",
             messages: [
                 { type: "system", text: "23:42 PM" },
@@ -205,7 +194,6 @@
             ]
         },
         balasPrank: {
-            sender: "you",
             messages: [
                 { type: "outgoing", text: "Ini siapa? Jangan nge-prank malam-malam!" },
                 { type: "incoming", text: "Gue Karin, anak OSIS! Sumpah demi tuhan ini bukan prank." },
@@ -217,7 +205,6 @@
             ]
         },
         teleponSatpam: {
-            sender: "you",
             messages: [
                 { type: "outgoing", text: "Gue telepon Pak Doni (Satpam) sekarang!" },
                 { type: "system", text: "Anda mencoba menghubungi Pak Doni..." },
@@ -231,7 +218,6 @@
             ]
         },
         nekatKeSekolah: {
-            sender: "you",
             messages: [
                 { type: "outgoing", text: "Sembunyi di lemari belakang, jangan bikin suara! Gue jalan ke sana." },
                 { type: "incoming", text: "Oke... gue masuk lemari. Buruan plis, napas gue sesak..." },
@@ -243,8 +229,6 @@
                 { text: "🔍 Cari petunjuk di sekitar meja guru", nextNode: "endingJebakan" }
             ]
         },
-
-        // 🎬 KUMPULAN ENDING
         endingBlokir: {
             messages: [
                 { type: "system", text: "Anda memblokir kontak ini." },
@@ -275,23 +259,25 @@
                 { type: "system", text: "🏅 ENDING: HEROIC RESCUE" },
                 { type: "system", text: "Kalian berhasil kabur lewat jendela sebelum pelaku menyadari. Misteri pelaku malam itu masih diselidiki, tapi kalian aman bersama." }
             ],
-choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
-},
-endingJebakan: {
-messages: [
-{ type: "system", text: "Kamu memeriksa meja guru..." },
-{ type: "system", text: "🕸️ ENDING: IT'S A TRAP" },
-{ type: "system", text: "Di atas meja ada HP Karin yang menyala. Tiba-tiba pintu Lab menutup otomatis dan terkunci. Di dalam lemari bukan Karin, melainkan sebuah boneka perekam suara..." }
+            choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
+        },
+        endingJebakan: {
+            messages: [
+                { type: "system", text: "Kamu memeriksa meja guru..." },
+                { type: "system", text: "🕸️ ENDING: IT'S A TRAP" },
+                { type: "system", text: "Di atas meja ada HP Karin yang menyala. Tiba-tiba pintu Lab menutup otomatis dan terkunci. Di dalam lemari bukan Karin, melainkan sebuah boneka perekam suara..." }
 ],
 choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
 }
 };
-  let chatBody = document.getElementById('chat-body');
+let chatBody = document.getElementById('chat-body');
 let choicesContainer = document.getElementById('choices-container');
 let chatName = document.getElementById('chat-name');
 let chatStatus = document.getElementById('chat-status');
-// Memuat progres simpanan (Auto-Save)
-let currentNode = localStorage.getItem('au_misteri_node') || 'start';
+let currentNode = localStorage.getItem('au_misteri_node');
+if (!currentNode || !storyData[currentNode]) {
+currentNode = 'start';
+}
 function saveProgress(nodeKey) {
 localStorage.setItem('au_misteri_node', nodeKey);
 }
@@ -300,43 +286,48 @@ localStorage.removeItem('au_misteri_node');
 chatBody.innerHTML = '';
 renderNode('start');
 }
-  async function renderNode(nodeKey) {
+function renderNode(nodeKey) {
 currentNode = nodeKey;
 saveProgress(nodeKey);
 const node = storyData[nodeKey];
-choicesContainer.innerHTML = ''; // Sembunyikan tombol saat mengetik
+chatBody.innerHTML = '';
+choicesContainer.innerHTML = '';
 if (node.name) {
 chatName.innerText = node.name;
+} else {
+chatName.innerText = "0812-334X-XXXX";
 }
-// Jalankan animasi chat beruntun
-for (let i = 0; i < node.messages.length; i++) {
-const msg = node.messages[i];
+let delay = 0;
+node.messages.forEach((msg, index) => {
+delay += 800;
+setTimeout(() => {
 if (msg.type === 'incoming') {
 chatStatus.innerText = 'typing...';
-await new Promise(res => setTimeout(res, 1200)); // Delay efek ngetik
-chatStatus.innerText = 'online';
-} else {
-await new Promise(res => setTimeout(res, 600));
+setTimeout(() => { chatStatus.innerText = 'online'; }, 500);
 }
 appendBubble(msg.text, msg.type);
-}
+}, delay);
+});
+setTimeout(() => {
 node.choices.forEach(choice => {
 const button = document.createElement('button');
 button.innerText = choice.text;
 button.classList.add('btn-choice');
 button.onclick = () => {
-  if(choice.nextNode !== 'start') {
-appendBubble(choice.text.replace('💬 Balas: ', '').replace('🏃 ', '').replace('🤫 ', '').replace('📞 ', ''), 'outgoing');
-}
-setTimeout(() => renderNode(choice.nextNode), 800);
+renderNode(choice.nextNode);
 };
 choicesContainer.appendChild(button);
 });
+}, delay + 500);
 }
 function appendBubble(text, type) {
 const bubble = document.createElement('div');
 bubble.classList.add('bubble', type);
 bubble.innerText = text;
 chatBody.appendChild(bubble);
-chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll ke bawah
+chatBody.scrollTop = chatBody.scrollHeight;
 }
+// Eksekusi otomatis saat web dimuat
+window.onload = function() {
+renderNode(currentNode);
+};
