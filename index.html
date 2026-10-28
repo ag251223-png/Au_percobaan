@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 AU Interaktif: The Last Message</title>
+    <style>
+        :root {
+            --bg-color: #0b141a;
+            --chat-bg: #0b141a;
+            --text-main: #e9edef;
+            --bubble-incoming: #202c33;
+            --bubble-outgoing: #005c4b;
+            --accent: #00a884;
+            --system-msg: #182229;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1f2c34;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mockup Handphone */
+        .phone-container {
+            width: 100%;
+            max-width: 420px;
+            height: 92vh;
+            background-color: var(--chat-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 4px solid #2f3b43;
+            position: relative;
+        }
+
+        /* Header Chat */
+        .chat-header {
+            background-color: #202c33;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #2f3b43;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #536471;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .user-info .name {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .user-info .status {
+            font-size: 0.75rem;
+            color: var(--accent);
+            height: 15px;
+        }
+
+        /* Area Isi Chat */
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        /* Bubble Chat */
+        .bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        .incoming {
+            background-color: var(--bubble-incoming);
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        .outgoing {
+            background-color: var(--bubble-outgoing);
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+
+        .system {
+            background-color: var(--system-msg);
+            color: #8696a0;
+            align-self: center;
+            font-size: 0.8rem;
+            text-align: center;
+            border-radius: 6px;
+            max-width: 90%;
+            padding: 5px 10px;
+        }
+
+        /* Pilihan Jawaban / Menu */
+        .choices-container {
+            background-color: #111b21;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 1px solid #2f3b43;
+        }
+
+        .btn-choice {
+            background-color: #202c33;
+            color: var(--text-main);
+            border: 1px solid #3d4a54;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .btn-choice:hover {
+            background-color: #2a3942;
+        }
+
+        .btn-reset {
+            background-color: #8c1d1d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <button class="btn-reset" onclick="resetGame()">Reset Game</button>
+    
+    <div class="chat-header">
+        <div class="avatar">❓</div>
+        <div class="user-info">
+            <div class="name" id="chat-name">Nomor Tidak Dikenal</div>
+            <div class="status" id="chat-status">online</div>
+        </div>
+    </div>
+
+    <div class="chat-body" id="chat-body">
+        <!-- Chat history akan muncul di sini via JavaScript -->
+    </div>
+
+    <div class="choices-container" id="choices-container">
+        <!-- Tombol pilihan muncul di sini -->
+    </div>
+</div>
+
+<script>
+    // 🎭 JALUR CERITA MISTERI (Kamu bisa edit teks & cabangnya di sini)
+    const storyData = {
+        start: {
+            sender: "unknown",
+            name: "0812-334X-XXXX",
+            messages: [
+                { type: "system", text: "23:42 PM" },
+                { type: "incoming", text: "P" },
+                { type: "incoming", text: "Tolongin gue... Siapapun yang megang nomor ini." },
+                { type: "incoming", text: "Gue kekunci di Lab Kimia lama. Ada orang di luar bawa pisau, dia nyariin gue." }
+            ],
+            choices: [
+                { text: "💬 Balas: 'Ini siapa? Jangan nge-prank malam-malam!'", nextNode: "balasPrank" },
+                { text: "🚫 Abaikan & langsung blokir nomornya.", nextNode: "endingBlokir" }
+            ]
+        },
+        balasPrank: {
+            sender: "you",
+            messages: [
+                { type: "outgoing", text: "Ini siapa? Jangan nge-prank malam-malam!" },
+                { type: "incoming", text: "Gue Karin, anak OSIS! Sumpah demi tuhan ini bukan prank." },
+                { type: "incoming", text: "Lampu sekolah dimatiin semua. Langkah kakinya makin deket ke pintu Lab..." }
+            ],
+            choices: [
+                { text: "📞 'Gue telepon Pak Doni (Satpam) sekarang!'", nextNode: "teleponSatpam" },
+                { text: "🤫 'Sembunyi di lemari belakang, jangan bikin suara! Gue jalan ke sana.'", nextNode: "nekatKeSekolah" }
+            ]
+        },
+        teleponSatpam: {
+            sender: "you",
+            messages: [
+                { type: "outgoing", text: "Gue telepon Pak Doni (Satpam) sekarang!" },
+                { type: "system", text: "Anda mencoba menghubungi Pak Doni..." },
+                { type: "system", text: "Nomor yang Anda tuju sedang tidak aktif." },
+                { type: "incoming", text: "GAK BISA! Pak Doni udah pingsan di pos tadi gue liat 😭" },
+                { type: "incoming", text: "PINTUNYA MULAI DIDOBRAK! DIALAH ORANGNYA!" }
+            ],
+            choices: [
+                { text: "🚨 Panggil Polisi", nextNode: "endingPolisi" },
+                { text: "🏃 Langsung lari ke sekolah bawa balok kayu", nextNode: "endingHoror" }
+            ]
+        },
+        nekatKeSekolah: {
+            sender: "you",
+            messages: [
+                { type: "outgoing", text: "Sembunyi di lemari belakang, jangan bikin suara! Gue jalan ke sana." },
+                { type: "incoming", text: "Oke... gue masuk lemari. Buruan plis, napas gue sesak..." },
+                { type: "system", text: "Karin terakhir terlihat 3 menit yang lalu." },
+                { type: "system", text: "Anda sampai di Lab Kimia. Pintu terbuka lebar, pecahan kaca berserakan. Lemari di belakang terkunci dari luar." }
+            ],
+            choices: [
+                { text: "🔓 Buka paksa lemarinya", nextNode: "endingSelamat" },
+                { text: "🔍 Cari petunjuk di sekitar meja guru", nextNode: "endingJebakan" }
+            ]
+        },
+
+        // 🎬 KUMPULAN ENDING
+        endingBlokir: {
+            messages: [
+                { type: "system", text: "Anda memblokir kontak ini." },
+                { type: "system", text: "❌ ENDING: IGNORED IGNORANCE" },
+                { type: "system", text: "Keesokan paginya, sekolah gempar. Karin ditemukan menghilang tanpa jejak. Anda dihantui rasa bersalah seumur hidup." }
+            ],
+            choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
+        },
+        endingPolisi: {
+            messages: [
+                { type: "system", text: "Polisi tiba di sekolah dalam 10 menit." },
+                { type: "system", text: "🏆 ENDING: THE TRUE SAVIOR" },
+                { type: "system", text: "Pelaku yang ternyata mantan alumni gangguan jiwa berhasil diringkus. Karin selamat meski trauma berat. Kamu adalah pahlawan." }
+            ],
+            choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
+        },
+        endingHoror: {
+            messages: [
+                { type: "system", text: "Kamu sampai di koridor sekolah yang gelap gulita..." },
+                { type: "system", text: "💀 ENDING: DOUBLE CASUALTY" },
+                { type: "system", text: "Kamu diserang dari belakang sebelum sempat mencapai Lab Kimia. Layar HP-mu retak di lantai, menampilkan chat terakhir Karin yang belum terbaca." }
+            ],
+            choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
+        },
+        endingSelamat: {
+            messages: [
+                { type: "system", text: "Kamu mendobrak lemari! Karin memelukmu sambil menangis." },
+                { type: "system", text: "🏅 ENDING: HEROIC RESCUE" },
+                { type: "system", text: "Kalian berhasil kabur lewat jendela sebelum pelaku menyadari. Misteri pelaku malam itu masih diselidiki, tapi kalian aman bersama." }
+            ],
+choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
+},
+endingJebakan: {
+messages: [
+{ type: "system", text: "Kamu memeriksa meja guru..." },
+{ type: "system", text: "🕸️ ENDING: IT'S A TRAP" },
+{ type: "system", text: "Di atas meja ada HP Karin yang menyala. Tiba-tiba pintu Lab menutup otomatis dan terkunci. Di dalam lemari bukan Karin, melainkan sebuah boneka perekam suara..." }
+],
+choices: [{ text: "🔄 Ulangi Cerita", nextNode: "start" }]
+}
+};
+  let chatBody = document.getElementById('chat-body');
+let choicesContainer = document.getElementById('choices-container');
+let chatName = document.getElementById('chat-name');
+let chatStatus = document.getElementById('chat-status');
+// Memuat progres simpanan (Auto-Save)
+let currentNode = localStorage.getItem('au_misteri_node') || 'start';
+function saveProgress(nodeKey) {
+localStorage.setItem('au_misteri_node', nodeKey);
+}
+function resetGame() {
+localStorage.removeItem('au_misteri_node');
+chatBody.innerHTML = '';
+renderNode('start');
+}
+  async function renderNode(nodeKey) {
+currentNode = nodeKey;
+saveProgress(nodeKey);
+const node = storyData[nodeKey];
+choicesContainer.innerHTML = ''; // Sembunyikan tombol saat mengetik
+if (node.name) {
+chatName.innerText = node.name;
+}
+// Jalankan animasi chat beruntun
+for (let i = 0; i < node.messages.length; i++) {
+const msg = node.messages[i];
+if (msg.type === 'incoming') {
+chatStatus.innerText = 'typing...';
+await new Promise(res => setTimeout(res, 1200)); // Delay efek ngetik
+chatStatus.innerText = 'online';
+} else {
+await new Promise(res => setTimeout(res, 600));
+}
+appendBubble(msg.text, msg.type);
+}
+node.choices.forEach(choice => {
+const button = document.createElement('button');
+button.innerText = choice.text;
+button.classList.add('btn-choice');
+button.onclick = () => {
+  if(choice.nextNode !== 'start') {
+appendBubble(choice.text.replace('💬 Balas: ', '').replace('🏃 ', '').replace('🤫 ', '').replace('📞 ', ''), 'outgoing');
+}
+setTimeout(() => renderNode(choice.nextNode), 800);
+};
+choicesContainer.appendChild(button);
+});
+}
+function appendBubble(text, type) {
+const bubble = document.createElement('div');
+bubble.classList.add('bubble', type);
+bubble.innerText = text;
+chatBody.appendChild(bubble);
+chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll ke bawah
+}
